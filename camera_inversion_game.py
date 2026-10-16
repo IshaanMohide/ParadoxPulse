@@ -53,8 +53,8 @@ class PoseCameraDetector:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
         
         self.baseline_torso_y = 0.45
-        self.squat_threshold = 0.115
-        self.hand_threshold = 0.070
+        self.squat_threshold = 0.135
+        self.hand_threshold = 0.085
         self.is_squatting = False
         
         self.left_hand_up = False
@@ -191,7 +191,15 @@ class Player:
             self.vx += self.accel
             self.facing = 1
         else:
-            self.vx *= self.friction
+            # Instant stop when hand is taken down!
+            if self.grounded:
+                self.vx *= 0.15
+                if abs(self.vx) < 0.1:
+                    self.vx = 0
+            else:
+                self.vx *= 0.65
+                if abs(self.vx) < 0.1:
+                    self.vx = 0
 
         self.vx += wind * 0.1
         self.vx = max(-self.speed, min(self.speed, self.vx))

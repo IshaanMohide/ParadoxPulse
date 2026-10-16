@@ -45,13 +45,15 @@ Experience the hackathon **Inversion** theme through physical body gestures trac
 
 Click the **`[⚙️ SENSITIVITY]`** button in the HUD or Camera panel to fine-tune your tracking in real-time with calibrated presets:
 
-- **⬇️ Squat / Sit-Down Depth Slider (`0.04 - 0.16`, Default: `0.115`)**:
+- **🛑 Instant Stop on Hand Drop**:
+  - The moment you lower your raised hand, steering velocity snaps to zero and the cyber-runner actively digs in its heels to **stop dead in place** without drifting forward.
+- **⬇️ Squat / Sit-Down Depth Slider (`0.04 - 0.18`, Default: `0.135`)**:
   - Calibrated for **deliberate movement**: requires a distinct, intentional squat or sitting down before triggering a jump, eliminating false hops from minor slouching.
   - *Live Visual Feedback:* The yellow/orange trigger line in the camera mirror moves up and down dynamically as you drag the slider!
-- **🖐️ Hand Raise Height Slider (`0.02 - 0.10`, Default: `0.070`)**:
+- **🖐️ Hand Raise Height Slider (`0.03 - 0.14`, Default: `0.085`)**:
   - Calibrated for **steady steering**: wrist must be clearly elevated above shoulder height to trigger inverted horizontal running, eliminating twitchy jitter.
-- **🌊 Steering Smoothness Slider (`0.08 - 0.40`, Default: `0.16`)**:
-  - Delivers a silky-smooth, cinematic cybernetic glide without erratic direction flipping.
+- **🌊 Steering Smoothness Slider (`0.06 - 0.30`, Default: `0.14`)**:
+  - Delivers a silky-smooth, cinematic cybernetic glide while braking instantly when hands are lowered.
 - **🎯 One-Click Neutral Calibrate**:
   - Calibrates your sitting or standing posture in 1 second.
 - **Persistent Memory**:

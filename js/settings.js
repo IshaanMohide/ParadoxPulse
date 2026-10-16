@@ -11,11 +11,11 @@ class GameSettings {
     constructor() {
         this.STORAGE_KEY = 'polarity_game_settings_v3';
         
-        // Calibrated Sensitivity & Gameplay Parameters (Less twitchy, more deliberate & smooth)
+        // Calibrated Sensitivity & Gameplay Parameters (Less sensitive, deliberate & instant stop)
         this.defaults = {
-            squatSensitivity: 0.115,  // Less sensitive: requires clear, deliberate squat
-            handSensitivity: 0.070,   // Less sensitive: requires clear hand raise above shoulder
-            steeringSmoothness: 0.16, // Smoother, calmer analog steering
+            squatSensitivity: 0.135,  // Less sensitive: requires clear, intentional squat
+            handSensitivity: 0.085,   // Less sensitive: requires clear hand raise above shoulder
+            steeringSmoothness: 0.14, // Smooth analog steering with instant stop on hand drop
             unpredictability: 'CHAOS', // Dynamic high-unpredictability quantum matrix!
             variableJump: true,
             cameraMirror: true,

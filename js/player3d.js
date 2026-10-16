@@ -30,6 +30,7 @@ class Player3D {
         this.grounded = false;
         this.coyoteTimer = 0;
         this.facing = 1;
+        this.isBraking = false;
 
         // Animation cycles
         this.runCycle = 0.0;
@@ -249,6 +250,9 @@ class Player3D {
         this.coreLight.color.setHex(hex);
         this.capeMat.color.setHex(hex);
         this.capeMat.emissive.setHex(hex);
+
+        // Spawn 3D Shockwave pulse
+        this.spawnDust(this.x, this.y + 0.9, 16, hex);
     }
 
     jump(powerMultiplier = 1.0) {
@@ -294,12 +298,32 @@ class Player3D {
         const maxV = this.speed * speedMod;
         const currentAccel = this.accel * (speedMod > 1.0 ? 1.3 : 1.0);
 
-        // Horizontal Steering + Crosswind
+        // Horizontal Steering: Active Run vs Instant Stop when Hand is Down
         if (Math.abs(steerInput) > 0.05) {
             this.vx += steerInput * currentAccel;
             this.facing = steerInput > 0 ? 1 : -1;
+            this.isBraking = false;
         } else {
-            this.vx *= this.friction;
+            // When hand is taken down: STOP FIRMLY AT THE EXACT PLACE, DO NOT GLIDE FORWARD!
+            if (this.grounded) {
+                if (Math.abs(this.vx) > 1.2) {
+                    this.isBraking = true;
+                    if (Math.random() < 0.4) {
+                        this.spawnDust(this.x, this.y, 2, 0xffffff);
+                    }
+                } else {
+                    this.isBraking = false;
+                }
+                this.vx *= 0.15; // Aggressive instant brake
+                if (Math.abs(this.vx) < 0.1) {
+                    this.vx = 0.0;
+                    this.isBraking = false;
+                }
+            } else {
+                this.vx *= 0.65;
+                if (Math.abs(this.vx) < 0.1) this.vx = 0.0;
+                this.isBraking = false;
+            }
         }
 
         // Apply wind force
@@ -428,33 +452,77 @@ class Player3D {
         this.bodyGroup.scale.set(this.squashX, this.squashY, this.squashZ);
         this.bodyGroup.rotation.z = this.tiltAngle;
 
-        if (this.grounded && Math.abs(this.vx) > 0.4) {
+        if (this.isBraking) {
+            // 1. Skidding / Braking Animation Pose:
+            // Digs heels in, tilts torso back against momentum, arms flare outward for balance!
+            this.tiltAngle = -this.facing * 0.24;
+            this.leftLegGroup.rotation.x = -0.45;
+            this.rightLegGroup.rotation.x = 0.35;
+            this.leftArmGroup.rotation.x = 0.65;
+            this.rightArmGroup.rotation.x = 0.65;
+            this.torsoMesh.position.y = 0.80; // slightly lower center of gravity
+            this.torsoMesh.rotation.y = 0;
+        } else if (this.grounded && Math.abs(this.vx) > 0.4) {
+            // 2. Athletic Kinetic Running Cycle:
             const swing = Math.sin(this.runCycle);
-            this.leftLegGroup.rotation.x = swing * 0.75;
-            this.rightLegGroup.rotation.x = -swing * 0.75;
-            this.leftArmGroup.rotation.x = -swing * 0.65;
-            this.rightArmGroup.rotation.x = swing * 0.65;
+            const cosSwing = Math.cos(this.runCycle);
+            
+            // Dynamic leg swings:
+            this.leftLegGroup.rotation.x = swing * 0.85;
+            this.rightLegGroup.rotation.x = -swing * 0.85;
+            
+            // Dynamic arm pumping:
+            this.leftArmGroup.rotation.x = -swing * 0.78;
+            this.rightArmGroup.rotation.x = swing * 0.78;
+            this.leftArmGroup.rotation.z = -0.15 + cosSwing * 0.08;
+            this.rightArmGroup.rotation.z = 0.15 - cosSwing * 0.08;
 
-            this.torsoMesh.position.y = 0.85 + Math.abs(Math.sin(this.runCycle * 2)) * 0.06;
+            // Torso bounce & spine twist:
+            this.torsoMesh.position.y = 0.85 + Math.abs(Math.sin(this.runCycle * 2)) * 0.08;
+            this.torsoMesh.rotation.y = swing * 0.14; // spine yaw twist
+            
+            // Periodic footfall sparks:
+            if (Math.abs(swing) > 0.85 && Math.random() < 0.25) {
+                this.spawnDust(this.x, this.y, 1, this.themeColor);
+            }
         } else if (!this.grounded) {
-            const inAirBend = this.vy > 0 ? 0.4 : -0.3;
+            // 3. Heroic Mid-Air Jump & Flare:
+            const inAirBend = this.vy > 0 ? 0.55 : -0.35;
             this.leftLegGroup.rotation.x = inAirBend;
-            this.rightLegGroup.rotation.x = -inAirBend * 0.5;
-            this.leftArmGroup.rotation.x = -0.8;
-            this.rightArmGroup.rotation.x = -0.8;
+            this.rightLegGroup.rotation.x = -inAirBend * 0.6;
+            this.leftArmGroup.rotation.x = -0.95;
+            this.rightArmGroup.rotation.x = -0.95;
+            this.leftArmGroup.rotation.z = -0.3;
+            this.rightArmGroup.rotation.z = 0.3;
             this.torsoMesh.position.y = 0.85;
+            this.torsoMesh.rotation.y = 0;
+
+            // Jet flare sparks under boots during ascents:
+            if (this.vy > 0 && Math.random() < 0.35) {
+                this.spawnDust(this.x + (Math.random() - 0.5) * 0.2, this.y - 0.2, 1, 0x00f0ff);
+            }
         } else {
+            // 4. Rich Idle Combat Stance & Procedural Breathing:
             const breath = Math.sin(this.idleCycle);
-            this.torsoMesh.position.y = 0.85 + breath * 0.02;
-            this.leftArmGroup.rotation.x = breath * 0.08;
-            this.rightArmGroup.rotation.x = -breath * 0.08;
-            this.leftLegGroup.rotation.x = 0;
-            this.rightLegGroup.rotation.x = 0;
+            const breathCos = Math.cos(this.idleCycle * 0.5);
+            this.torsoMesh.position.y = 0.85 + breath * 0.035;
+            this.torsoMesh.scale.x = 1.0 + breath * 0.03;
+            this.torsoMesh.scale.z = 1.0 + breath * 0.02;
+            this.torsoMesh.rotation.y = breathCos * 0.06;
+
+            // Arms resting with organic micro-sway:
+            this.leftArmGroup.rotation.x = breath * 0.12;
+            this.rightArmGroup.rotation.x = -breath * 0.12;
+            this.leftArmGroup.rotation.z = -0.08 + breath * 0.04;
+            this.rightArmGroup.rotation.z = 0.08 - breath * 0.04;
+
+            this.leftLegGroup.rotation.x = 0.08;
+            this.rightLegGroup.rotation.x = -0.08;
         }
 
-        const pulse = 1.0 + Math.sin(performance.now() * 0.008) * 0.25;
+        const pulse = 1.0 + Math.sin(performance.now() * 0.009) * 0.35;
         this.coreMesh.scale.set(pulse, pulse, pulse);
-        this.coreLight.intensity = 1.5 * pulse;
+        this.coreLight.intensity = 1.8 * pulse;
     }
 
     updateVerletCape(dt, wind = 0) {

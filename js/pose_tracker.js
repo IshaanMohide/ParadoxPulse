@@ -22,7 +22,7 @@ class SmoothPoseTracker {
 
         // Landmark EMA Smoothing Memory
         this.smoothedLandmarks = {};
-        this.alpha = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.steeringSmoothness : 0.16;
+        this.alpha = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.steeringSmoothness : 0.14;
 
         // Hysteresis States for Gestures
         this.leftHandRaised = false;
@@ -34,11 +34,11 @@ class SmoothPoseTracker {
         this.smoothedSteer = 0.0;
         this.targetSteer = 0.0;
 
-        // Squat / Sit-Down Detection (Calibrated: Less sensitive, requires deliberate squat)
+        // Squat / Sit-Down Detection (Calibrated: Less sensitive, requires deliberate squat & instant stop on release)
         this.baselineTorsoY = 0.42;
         this.currentTorsoY = 0.42;
-        this.squatThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.squatSensitivity : 0.115;
-        this.handThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.handSensitivity : 0.070;
+        this.squatThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.squatSensitivity : 0.135;
+        this.handThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.handSensitivity : 0.085;
         this.isSquatting = false;
 
         // Banner Alert Timer
@@ -291,12 +291,15 @@ class SmoothPoseTracker {
             this.drawSmoothSkeleton(ctx, cw, ch);
 
             // Hand Raise with dynamic threshold
+            // Calibrated Lower-Sensitivity Hand Detection with Instant Release on Lowering Hand
             const hThreshold = this.handThreshold;
+            const releaseThreshold = hThreshold * 0.45; // Releases the instant hand starts lowering!
+
             if (lWrist && lShoulder && lWrist.visibility > 0.4) {
                 if (!this.leftHandRaised && lWrist.y < lShoulder.y - hThreshold) {
                     this.leftHandRaised = true;
-                } else if (this.leftHandRaised && lWrist.y > lShoulder.y + 0.02) {
-                    this.leftHandRaised = false;
+                } else if (this.leftHandRaised && lWrist.y > lShoulder.y - releaseThreshold) {
+                    this.leftHandRaised = false; // Instantly false when lowered!
                 }
             } else {
                 this.leftHandRaised = false;
@@ -305,15 +308,15 @@ class SmoothPoseTracker {
             if (rWrist && rShoulder && rWrist.visibility > 0.4) {
                 if (!this.rightHandRaised && rWrist.y < rShoulder.y - hThreshold) {
                     this.rightHandRaised = true;
-                } else if (this.rightHandRaised && rWrist.y > rShoulder.y + 0.02) {
-                    this.rightHandRaised = false;
+                } else if (this.rightHandRaised && rWrist.y > rShoulder.y - releaseThreshold) {
+                    this.rightHandRaised = false; // Instantly false when lowered!
                 }
             } else {
                 this.rightHandRaised = false;
             }
 
             const bothHands = (this.leftHandRaised && this.rightHandRaised &&
-                lWrist.y < lShoulder.y - 0.09 && rWrist.y < rShoulder.y - 0.09);
+                lWrist.y < lShoulder.y - (hThreshold * 0.8) && rWrist.y < rShoulder.y - (hThreshold * 0.8));
 
             // Torso height
             if (lShoulder && rShoulder) {
@@ -356,19 +359,21 @@ class SmoothPoseTracker {
                 this.showAlert('⚡', 'REALITY SHIFT TRIGGERED');
             }
 
-            // Inversion Steering
+            // Inversion Steering & Instant Stop when Hand is Down
             if (bothHands) {
                 this.targetSteer = 0.0;
+                this.smoothedSteer = 0.0;
             } else if (this.leftHandRaised) {
                 this.targetSteer = 1.0;  // LEFT HAND -> MOVE RIGHT!
+                this.smoothedSteer += (this.targetSteer - this.smoothedSteer) * this.alpha;
             } else if (this.rightHandRaised) {
                 this.targetSteer = -1.0; // RIGHT HAND -> MOVE LEFT!
+                this.smoothedSteer += (this.targetSteer - this.smoothedSteer) * this.alpha;
             } else {
+                // Hand is down: IMMEDIATELY ZERO STEERING SO CHARACTER STOPS IN PLACE!
                 this.targetSteer = 0.0;
+                this.smoothedSteer = 0.0;
             }
-
-            // Analog Steering Smoothing
-            this.smoothedSteer += (this.targetSteer - this.smoothedSteer) * this.alpha;
 
             this.bothHandsRaised = bothHands;
             this.updatePillStates(this.leftHandRaised && !bothHands, this.rightHandRaised && !bothHands, this.isSquatting, bothHands);
