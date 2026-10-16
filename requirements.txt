@@ -1,0 +1,4 @@
+# Dependencies for Python Camera Gesture Edition (camera_inversion_game.py)
+pygame>=2.5.0
+opencv-python>=4.8.0
+mediapipe>=0.10.0

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POLARITY 3D // AI Camera Inversion Platformer</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Cyberpunk Styling -->
+    <link rel="stylesheet" href="css/cyberpunk.css">
+
+    <!-- Three.js (3D WebGL Graphics Engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Google MediaPipe Pose & Camera Utils (100% Free, Zero API Keys, Runs Locally via WASM/GPU) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="polarity-cyan">
+    <div id="game-container">
+        <!-- Three.js 3D WebGL Rendering Canvas -->
+        <canvas id="webgl-canvas"></canvas>
+
+        <!-- CRT & Glitch Post-Processing Overlays -->
+        <div class="scanlines"></div>
+        <div class="vignette"></div>
+        <div class="reality-flash" id="realityFlash"></div>
+
+        <!-- Floating Gesture Alert Banner -->
+        <div id="gesture-alert-banner">
+            <span id="gesture-alert-icon">🖐️</span>
+            <span id="gesture-alert-text">GESTURE TRIGGERED</span>
+        </div>
+
+        <!-- Glassmorphism HUD Bar -->
+        <div id="hud">
+            <div class="hud-left-group">
+                <div class="hud-panel">
+                    <div id="hud-polarity-badge" class="badge-cyan">
+                        <span class="pulse-dot"></span>
+                        <span id="polarity-text">CYAN REALITY</span>
+                    </div>
+                    <div class="hud-stat">
+                        <span class="hud-label">Sector</span>
+                        <span class="hud-value" id="hud-level">01 // AWAKENING</span>
+                    </div>
+                    <div class="hud-stat">
+                        <span class="hud-label">Quantum Shards</span>
+                        <span class="hud-value" id="hud-shards">0 / 3</span>
+                    </div>
+                    <div class="hud-stat">
+                        <span class="hud-label">Chrono</span>
+                        <span class="hud-value" id="hud-timer">00:00.0</span>
+                    </div>
+                </div>
+
+                <div class="hud-buttons">
+                    <button class="hud-btn" id="btn-audio" title="Toggle Synth Audio">
+                        <span id="audio-icon">🔊</span> AUDIO
+                    </button>
+                    <button class="hud-btn" id="btn-camera-toggle" title="Toggle AI Camera Tracking">
+                        <span id="cam-toggle-icon">📷</span> CAM TRACKING
+                    </button>
+                    <button class="hud-btn" id="btn-settings" title="Camera Sensitivity & Unpredictability">
+                        ⚙️ SENSITIVITY
+                    </button>
+                    <button class="hud-btn" id="btn-pause" title="Pause Game [ESC]">
+                        ⏸ PAUSE
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Camera HUD (Picture-in-Picture) -->
+        <div id="camera-hud">
+            <div class="cam-header">
+                <div class="cam-status">
+                    <span class="cam-status-indicator" id="cam-indicator"></span>
+                    <span id="cam-status-label">AI TRACKER 60FPS</span>
+                </div>
+                <div>
+                    <button class="cam-btn-mini" id="btn-cam-minimize" title="Minimize / Maximize">_</button>
+                </div>
+            </div>
+
+            <!-- Mirrored Camera Feed with Glowing Laser Skeleton -->
+            <div id="camera-feed-container">
+                <video id="webcamVideo" playsinline autoplay muted></video>
+                <canvas id="cameraCanvas" width="320" height="240"></canvas>
+            </div>
+
+            <!-- Live Sit-Down / Squat Depth Meter -->
+            <div id="squat-gauge-wrap">
+                <div class="gauge-label-row">
+                    <span>SQUAT / SIT DEPTH</span>
+                    <span id="gauge-percent">0%</span>
+                </div>
+                <div class="gauge-bar-track">
+                    <div class="gauge-bar-fill" id="squat-fill"></div>
+                    <div class="gauge-target-line" title="Jump Trigger Level Line"></div>
+                </div>
+            </div>
+
+            <!-- Active Gesture Feedback Badges -->
+            <div id="gesture-pills">
+                <div class="gesture-pill pill-lhand" id="pill-lhand">
+                    <span>🖐️ LEFT HAND</span>
+                    <span style="font-size:8px; opacity:0.8">❯ MOVE RIGHT</span>
+                </div>
+                <div class="gesture-pill pill-rhand" id="pill-rhand">
+                    <span>RIGHT HAND 🖐️</span>
+                    <span style="font-size:8px; opacity:0.8">MOVE LEFT ❮</span>
+                </div>
+                <div class="gesture-pill pill-squat" id="pill-squat">
+                    <span>⬇️ SIT DOWN / SQUAT</span>
+                    <span style="font-size:8px; opacity:0.8">TRIGGER JUMP ⬆️</span>
+                </div>
+                <div class="gesture-pill pill-both" id="pill-both">
+                    <span>⚡ BOTH HANDS UP</span>
+                    <span style="font-size:8px; opacity:0.8">REALITY SHIFT (CYAN/MAGENTA)</span>
+                </div>
+            </div>
+
+            <!-- Calibration & Quick Sensitivity Toggle -->
+            <div class="cam-controls">
+                <button class="cam-act-btn" id="btn-calibrate" title="Calibrate Neutral Posture">🎯 RE-CALIBRATE</button>
+                <button class="cam-act-btn" id="btn-cam-power" title="Start/Stop Camera">POWER</button>
+            </div>
+        </div>
+
+        <!-- Bottom Controls Bar -->
+        <div id="controls-bar">
+            <span><span class="cam-key-badge">🖐️ L-HAND</span> RUN RIGHT</span>
+            <span><span class="cam-key-badge">🖐️ R-HAND</span> RUN LEFT</span>
+            <span><span class="cam-key-badge">⬇️ SIT DOWN</span> JUMP</span>
+            <span><span class="cam-key-badge">⚡ 2-HANDS</span> SHIFT REALITY</span>
+            <span style="opacity:0.6; margin-left:8px;">| Keyboard: <span class="key-badge">A/D</span> Run (Inverted) • <span class="key-badge">W/Space</span> Jump • <span class="key-badge">Shift</span> Shift • <span class="key-badge">C</span> Dash</span>
+        </div>
+
+        <!-- Start Screen Modal -->
+        <div class="modal-screen" id="modal-start">
+            <div class="modal-card">
+                <h1 class="modal-title">POLARITY 3D</h1>
+                <div class="modal-subtitle">AI Camera Gesture Inversion Platformer</div>
+
+                <div class="gesture-guide-grid">
+                    <div class="gesture-guide-item">
+                        <div class="gesture-guide-icon">🖐️ ➡️</div>
+                        <div class="gesture-guide-name">Raise Left Hand</div>
+                        <div class="gesture-guide-action">Moves Character Right</div>
+                    </div>
+                    <div class="gesture-guide-item">
+                        <div class="gesture-guide-icon">⬅️ 🖐️</div>
+                        <div class="gesture-guide-name">Raise Right Hand</div>
+                        <div class="gesture-guide-action">Moves Character Left</div>
+                    </div>
+                    <div class="gesture-guide-item">
+                        <div class="gesture-guide-icon">⬇️ ⬆️</div>
+                        <div class="gesture-guide-name">Sit Down / Squat</div>
+                        <div class="gesture-guide-action">Triggers 3D High Jump</div>
+                    </div>
+                </div>
+
+                <p class="modal-desc">
+                    <strong>Zero Setup Required:</strong> Powered by on-device Google MediaPipe AI pose estimation and Three.js 3D WebGL.<br>
+                    Raise your <strong>Left Hand</strong> to run <strong>Right</strong>. Raise your <strong>Right Hand</strong> to run <strong>Left</strong>. <strong>Sit Down or Squat</strong> to <strong>Jump</strong>! Deeper physical squats deliver more explosive leaps. Beware of unpredictable quantum gravity flux and temporal rifts!
+                </p>
+
+                <div class="btn-group">
+                    <button class="cyber-btn" id="btn-start-game">INITIALIZE 3D MATRIX WITH CAMERA</button>
+                    <button class="cyber-btn btn-outline" id="btn-start-nocam">PLAY WITH KEYBOARD</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Sensitivity & Settings Modal -->
+        <div class="modal-screen hidden" id="modal-settings">
+            <div class="modal-card">
+                <h2 class="modal-title">CALIBRATION & SENSITIVITY</h2>
+                <div class="modal-subtitle">Tune Camera Gesture Thresholds & Unpredictability</div>
+
+                <div class="settings-grid">
+                    <!-- Squat Sensitivity -->
+                    <div class="setting-item">
+                        <div class="setting-header">
+                            <span class="setting-title">⬇️ SQUAT / SIT-DOWN DEPTH</span>
+                            <span class="setting-value-badge" id="val-squat-sens">57%</span>
+                        </div>
+                        <p class="setting-desc">Adjusts how deep you need to squat or duck to trigger a jump. High sensitivity = quick shallow dips jump easily.</p>
+                        <input type="range" class="cyber-slider" id="slider-squat-sens" min="0.04" max="0.16" step="0.005" value="0.085">
+                    </div>
+
+                    <!-- Hand Sensitivity -->
+                    <div class="setting-item">
+                        <div class="setting-header">
+                            <span class="setting-title">🖐️ HAND RAISE SENSITIVITY</span>
+                            <span class="setting-value-badge" id="val-hand-sens">60%</span>
+                        </div>
+                        <p class="setting-desc">Controls how high your wrist must be elevated above shoulder level to trigger inverted movement.</p>
+                        <input type="range" class="cyber-slider" id="slider-hand-sens" min="0.02" max="0.10" step="0.005" value="0.045">
+                    </div>
+
+                    <!-- Steering Smoothness -->
+                    <div class="setting-item">
+                        <div class="setting-header">
+                            <span class="setting-title">🌊 STEERING SMOOTHNESS</span>
+                            <span class="setting-value-badge" id="val-smooth-sens">55%</span>
+                        </div>
+                        <p class="setting-desc">Lower = ultra-smooth cinematic glide; Higher = instant twitch esports responsiveness.</p>
+                        <input type="range" class="cyber-slider" id="slider-smooth-sens" min="0.08" max="0.40" step="0.01" value="0.22">
+                    </div>
+
+                    <!-- Unpredictability Mode -->
+                    <div class="setting-item">
+                        <div class="setting-header">
+                            <span class="setting-title">🌀 MATRIX UNPREDICTABILITY</span>
+                        </div>
+                        <p class="setting-desc">Controls the frequency of random quantum anomalies (anti-gravity waves, temporal bullet-time, ion crosswinds, and glitch sentinels).</p>
+                        <div class="mode-toggle-group">
+                            <button class="mode-btn" id="mode-chill">CHILL</button>
+                            <button class="mode-btn active" id="mode-normal">NORMAL</button>
+                            <button class="mode-btn" id="mode-chaos">CHAOS</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="cyber-btn" id="btn-close-settings">SAVE & RESUME</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Modal -->
+        <div class="modal-screen hidden" id="modal-pause">
+            <div class="modal-card">
+                <h2 class="modal-title">SIMULATION PAUSED</h2>
+                <div class="modal-subtitle">3D Reality Matrix Suspended</div>
+                <div class="btn-group">
+                    <button class="cyber-btn" id="btn-resume">RESUME</button>
+                    <button class="cyber-btn btn-outline" id="btn-restart-level">RESTART SECTOR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sector Victory Modal -->
+        <div class="modal-screen hidden" id="modal-victory">
+            <div class="modal-card">
+                <h2 class="modal-title" id="victory-title">SECTOR PURGED</h2>
+                <div class="modal-subtitle" id="victory-subtitle">3D Quantum Singularity Stabilized</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="title">TIME ELAPSED</div>
+                        <div class="val" id="stat-time">00:00.0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="title">SHARDS FOUND</div>
+                        <div class="val" id="stat-shards">3 / 3</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="title">ANOMALIES (DEATHS)</div>
+                        <div class="val" id="stat-deaths">0</div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="cyber-btn" id="btn-next-level">NEXT SECTOR ❯</button>
+                    <button class="cyber-btn btn-outline" id="btn-retry-victory">REPLAY SECTOR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Complete Modal -->
+        <div class="modal-screen hidden" id="modal-gameover">
+            <div class="modal-card">
+                <h1 class="modal-title">MATRIX TRANSCENDED</h1>
+                <div class="modal-subtitle">All 3D Sectors Mastered Via Camera Inversion</div>
+                <p class="modal-desc" style="color: #67e8f9">
+                    Extraordinary synaptic control. You successfully commanded the 3D reality matrix purely through body gestures and inverted spatial polarity!
+                </p>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="title">TOTAL TIME</div>
+                        <div class="val" id="stat-total-time">00:00.0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="title">TOTAL SHARDS</div>
+                        <div class="val" id="stat-total-shards">15 / 15</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="title">SYNC RATING</div>
+                        <div class="val" style="color:#00f0ff">RANK S+</div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="cyber-btn" id="btn-play-again">REBOOT SIMULATION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pure Modular JavaScript Architecture -->
+    <script src="js/settings.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/anomalies.js"></script>
+    <script src="js/pose_tracker.js"></script>
+    <script src="js/player3d.js"></script>
+    <script src="js/world3d.js"></script>
+    <script src="js/game.js"></script>
+</body>
+
+</html>
