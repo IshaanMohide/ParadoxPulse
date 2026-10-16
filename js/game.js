@@ -156,6 +156,100 @@ const LEVELS_3D = [
         pads: [
             { x: 17.0, y: 4.1, power: 16.5 }
         ]
+    },
+    {
+        name: "06 // NEON GRAVITY SPIRE",
+        description: "Scale a vertical neon spire featuring vertical shuttle elevators, jump boosters, and sweeping laser fields.",
+        spawn: { x: 2.5, y: 2.5 },
+        exit: { x: 28.0, y: 19.5 },
+        bounds: { width: 34.0, height: 26.0 },
+        platforms: [
+            { x: 3.0, y: 1.0, w: 6.0, h: 1.0, type: 'NEUTRAL' },
+            { x: 9.0, y: 3.5, w: 3.5, h: 0.6, type: 'CYAN', moveY: 2.5, speed: 1.5 },
+            { x: 15.0, y: 7.0, w: 4.0, h: 0.8, type: 'NEUTRAL' },
+            { x: 21.0, y: 12.0, w: 3.5, h: 0.6, type: 'MAGENTA', moveX: 2.5, speed: 1.8 },
+            { x: 12.0, y: 14.5, w: 3.2, h: 0.6, type: 'CYAN', moveY: 2.5, speed: 1.6 },
+            { x: 20.0, y: 18.0, w: 3.5, h: 0.6, type: 'MAGENTA' },
+            { x: 27.5, y: 18.5, w: 6.0, h: 1.0, type: 'NEUTRAL' }
+        ],
+        hazards: [
+            { x: 15.0, y: -2.0, w: 35.0, h: 1.5, type: 'NEUTRAL' },
+            { x: 18.0, y: 5.0, w: 0.4, h: 6.5, type: 'CYAN_LASER' },
+            { x: 16.5, y: 12.0, w: 0.4, h: 6.5, type: 'MAGENTA_LASER' }
+        ],
+        shards: [
+            { x: 9.0, y: 6.5 },
+            { x: 15.0, y: 13.0 },
+            { x: 20.0, y: 19.5 }
+        ],
+        pads: [
+            { x: 15.0, y: 7.6, power: 17.5 }
+        ]
+    },
+    {
+        name: "07 // CHRONO WARP LABYRINTH",
+        description: "Navigate a dual-corridor quantum rift where high-speed platforms and cross-lasers test your reflexes.",
+        spawn: { x: 2.0, y: 3.0 },
+        exit: { x: 44.0, y: 10.0 },
+        bounds: { width: 50.0, height: 22.0 },
+        platforms: [
+            { x: 3.0, y: 1.0, w: 5.5, h: 1.0, type: 'NEUTRAL' },
+            { x: 9.5, y: 2.8, w: 3.2, h: 0.6, type: 'CYAN', moveX: 2.2, speed: 1.7 },
+            { x: 15.0, y: 4.5, w: 3.2, h: 0.6, type: 'MAGENTA', moveY: 2.0, speed: 1.5 },
+            { x: 21.0, y: 5.5, w: 4.5, h: 0.8, type: 'NEUTRAL' },
+            { x: 27.5, y: 7.0, w: 3.2, h: 0.6, type: 'CYAN', moveX: 2.8, speed: 2.0 },
+            { x: 33.5, y: 8.5, w: 3.2, h: 0.6, type: 'MAGENTA', moveY: 2.2, speed: 1.8 },
+            { x: 39.0, y: 7.5, w: 3.5, h: 0.6, type: 'CYAN' },
+            { x: 44.0, y: 9.0, w: 6.0, h: 1.0, type: 'NEUTRAL' }
+        ],
+        hazards: [
+            { x: 25.0, y: -2.0, w: 50.0, h: 1.5, type: 'NEUTRAL' },
+            { x: 12.0, y: 1.5, w: 0.4, h: 7.0, type: 'MAGENTA_LASER' },
+            { x: 24.0, y: 3.0, w: 0.4, h: 7.5, type: 'CYAN_LASER' },
+            { x: 36.5, y: 4.5, w: 0.4, h: 8.0, type: 'MAGENTA_LASER' }
+        ],
+        shards: [
+            { x: 15.0, y: 7.2 },
+            { x: 27.5, y: 9.5 },
+            { x: 39.0, y: 9.2 }
+        ],
+        pads: [
+            { x: 21.0, y: 6.1, power: 17.0 }
+        ]
+    },
+    {
+        name: "08 // THE OMEGA SINGULARITY",
+        description: "The climactic multiversal showdown: high-velocity platforms, dual lasers, and hyper-unpredictable matrix anomalies.",
+        spawn: { x: 2.0, y: 3.5 },
+        exit: { x: 50.0, y: 12.0 },
+        bounds: { width: 56.0, height: 24.0 },
+        platforms: [
+            { x: 3.0, y: 1.0, w: 5.5, h: 1.0, type: 'NEUTRAL' },
+            { x: 9.0, y: 3.0, w: 3.0, h: 0.6, type: 'CYAN', moveX: 2.5, speed: 1.8 },
+            { x: 14.5, y: 5.0, w: 3.0, h: 0.6, type: 'MAGENTA', moveY: 2.5, speed: 1.8 },
+            { x: 20.0, y: 6.0, w: 4.0, h: 0.8, type: 'NEUTRAL' },
+            { x: 26.0, y: 8.0, w: 3.2, h: 0.6, type: 'CYAN', moveX: 3.0, speed: 2.2 },
+            { x: 32.0, y: 9.5, w: 3.2, h: 0.6, type: 'MAGENTA', moveX: 3.0, speed: 2.2 },
+            { x: 38.0, y: 8.5, w: 4.0, h: 0.8, type: 'NEUTRAL' },
+            { x: 44.0, y: 10.5, w: 3.5, h: 0.6, type: 'CYAN', moveY: 2.0, speed: 2.0 },
+            { x: 50.0, y: 11.0, w: 6.5, h: 1.0, type: 'NEUTRAL' }
+        ],
+        hazards: [
+            { x: 28.0, y: -2.0, w: 56.0, h: 1.5, type: 'NEUTRAL' },
+            { x: 11.5, y: 1.5, w: 0.4, h: 8.0, type: 'CYAN_LASER' },
+            { x: 17.5, y: 2.5, w: 0.4, h: 8.5, type: 'MAGENTA_LASER' },
+            { x: 29.0, y: 4.0, w: 0.4, h: 9.0, type: 'CYAN_LASER' },
+            { x: 41.0, y: 5.0, w: 0.4, h: 9.0, type: 'MAGENTA_LASER' }
+        ],
+        shards: [
+            { x: 14.5, y: 7.8 },
+            { x: 26.0, y: 10.5 },
+            { x: 44.0, y: 13.0 }
+        ],
+        pads: [
+            { x: 20.0, y: 6.6, power: 18.0 },
+            { x: 38.0, y: 9.1, power: 18.5 }
+        ]
     }
 ];
 
@@ -499,8 +593,8 @@ class GameEngine {
             this.sectorVictory();
         }
 
-        // Update 3D World & Camera
-        this.world.update(scaledDt, this.player, this.polarity);
+        // Update 3D World & Camera with Anomaly Effects
+        this.world.update(scaledDt, this.player, this.polarity, this.anomalies);
         this.updateHUD();
     }
 
@@ -508,6 +602,7 @@ class GameEngine {
         this.state = 'VICTORY';
         this.audio.playVictory();
         this.totalTime += this.elapsedTime;
+        this.totalShardsBank = (this.totalShardsBank || 0) + this.collectedShards;
 
         document.getElementById('stat-time').textContent = this.formatTime(this.elapsedTime);
         document.getElementById('stat-shards').textContent = `${this.collectedShards} / ${this.world.shardObjects.length}`;
@@ -527,8 +622,10 @@ class GameEngine {
 
     gameComplete() {
         this.state = 'GAMEOVER';
+        const totalMax = LEVELS_3D.length * 3;
+        const totalGot = Math.min(totalMax, (this.totalShardsBank || 0) + this.collectedShards);
         document.getElementById('stat-total-time').textContent = this.formatTime(this.totalTime);
-        document.getElementById('stat-total-shards').textContent = `15 / 15`;
+        document.getElementById('stat-total-shards').textContent = `${totalGot} / ${totalMax}`;
         document.getElementById('modal-gameover').classList.remove('hidden');
     }
 

@@ -22,7 +22,7 @@ class SmoothPoseTracker {
 
         // Landmark EMA Smoothing Memory
         this.smoothedLandmarks = {};
-        this.alpha = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.steeringSmoothness : 0.22;
+        this.alpha = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.steeringSmoothness : 0.16;
 
         // Hysteresis States for Gestures
         this.leftHandRaised = false;
@@ -34,11 +34,11 @@ class SmoothPoseTracker {
         this.smoothedSteer = 0.0;
         this.targetSteer = 0.0;
 
-        // Squat / Sit-Down Detection
+        // Squat / Sit-Down Detection (Calibrated: Less sensitive, requires deliberate squat)
         this.baselineTorsoY = 0.42;
         this.currentTorsoY = 0.42;
-        this.squatThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.squatSensitivity : 0.085;
-        this.handThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.handSensitivity : 0.045;
+        this.squatThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.squatSensitivity : 0.115;
+        this.handThreshold = (window.GameSettings && window.GameSettings.current) ? window.GameSettings.current.handSensitivity : 0.070;
         this.isSquatting = false;
 
         // Banner Alert Timer

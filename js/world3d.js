@@ -299,7 +299,7 @@ class World3D {
         this.portalGroup.position.set(levelData.exit.x, levelData.exit.y, 0);
     }
 
-    update(dt, player, polarity) {
+    update(dt, player, polarity, anomalies) {
         // 1. Smooth Spring-Arm Camera Follow
         const lookAheadX = player.vx * 0.22;
         this.camTarget.x = player.x + lookAheadX;
@@ -315,8 +315,9 @@ class World3D {
         this.camLookAt.y = this.camera.position.y - 0.4;
         this.camera.lookAt(this.camLookAt);
 
-        // Subtle camera roll on turn
-        this.camera.rotation.z = -player.vx * 0.003;
+        // Subtle camera roll on turn + anomaly Dutch angle
+        const anomRoll = (anomalies && anomalies.cameraRoll) ? anomalies.cameraRoll : 0.0;
+        this.camera.rotation.z = (-player.vx * 0.003) + anomRoll;
 
         // 2. Animate Hovercrafts
         this.hovercrafts.forEach(h => {

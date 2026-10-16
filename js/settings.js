@@ -9,15 +9,15 @@
  */
 class GameSettings {
     constructor() {
-        this.STORAGE_KEY = 'polarity_game_settings_v2';
+        this.STORAGE_KEY = 'polarity_game_settings_v3';
         
-        // Default Sensitivity & Gameplay Parameters
+        // Calibrated Sensitivity & Gameplay Parameters (Less twitchy, more deliberate & smooth)
         this.defaults = {
-            squatSensitivity: 0.085, // Lower = shallow squat jumps; Higher = deep squat needed
-            handSensitivity: 0.045,  // Hand raise distance from shoulder
-            steeringSmoothness: 0.22, // 0.08 = ultra-smooth cinematic, 0.45 = snappy esports
-            unpredictability: 'NORMAL', // 'CHILL', 'NORMAL', 'CHAOS'
-            variableJump: true,      // Deeper squat = higher jump
+            squatSensitivity: 0.115,  // Less sensitive: requires clear, deliberate squat
+            handSensitivity: 0.070,   // Less sensitive: requires clear hand raise above shoulder
+            steeringSmoothness: 0.16, // Smoother, calmer analog steering
+            unpredictability: 'CHAOS', // Dynamic high-unpredictability quantum matrix!
+            variableJump: true,
             cameraMirror: true,
             audioVolume: 0.8
         };
@@ -45,28 +45,24 @@ class GameSettings {
     }
 
     setSquatSensitivity(val) {
-        // Val in range 0.04 to 0.16 (inverted in UI: higher slider = more sensitive)
         this.current.squatSensitivity = parseFloat(val);
         this.saveSettings();
         window.dispatchEvent(new CustomEvent('polarity_settings_changed', { detail: this.current }));
     }
 
     setHandSensitivity(val) {
-        // Val in range 0.02 to 0.10
         this.current.handSensitivity = parseFloat(val);
         this.saveSettings();
         window.dispatchEvent(new CustomEvent('polarity_settings_changed', { detail: this.current }));
     }
 
     setSteeringSmoothness(val) {
-        // Val in range 0.08 to 0.40
         this.current.steeringSmoothness = parseFloat(val);
         this.saveSettings();
         window.dispatchEvent(new CustomEvent('polarity_settings_changed', { detail: this.current }));
     }
 
     setUnpredictability(mode) {
-        // 'CHILL', 'NORMAL', 'CHAOS'
         this.current.unpredictability = mode;
         this.saveSettings();
         window.dispatchEvent(new CustomEvent('polarity_settings_changed', { detail: this.current }));

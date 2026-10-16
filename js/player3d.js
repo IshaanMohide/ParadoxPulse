@@ -286,9 +286,17 @@ class Player3D {
         const wind = anomalyModifiers ? anomalyModifiers.windForce : 0.0;
         this.gravity = this.baseGravity * gravMod;
 
+        // Anomaly modifiers: speed, gravity, wind, and perception inversion
+        if (anomalyModifiers && anomalyModifiers.steerInvert) {
+            steerInput = -steerInput;
+        }
+        const speedMod = (anomalyModifiers && anomalyModifiers.speedMultiplier) ? anomalyModifiers.speedMultiplier : 1.0;
+        const maxV = this.speed * speedMod;
+        const currentAccel = this.accel * (speedMod > 1.0 ? 1.3 : 1.0);
+
         // Horizontal Steering + Crosswind
         if (Math.abs(steerInput) > 0.05) {
-            this.vx += steerInput * this.accel;
+            this.vx += steerInput * currentAccel;
             this.facing = steerInput > 0 ? 1 : -1;
         } else {
             this.vx *= this.friction;
@@ -297,7 +305,6 @@ class Player3D {
         // Apply wind force
         this.vx += wind * dt;
 
-        const maxV = this.speed;
         this.vx = Math.max(-maxV, Math.min(maxV, this.vx));
 
         // Gravity

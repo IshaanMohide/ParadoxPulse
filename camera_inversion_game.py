@@ -53,8 +53,8 @@ class PoseCameraDetector:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
         
         self.baseline_torso_y = 0.45
-        self.squat_threshold = 0.085
-        self.hand_threshold = 0.045
+        self.squat_threshold = 0.115
+        self.hand_threshold = 0.070
         self.is_squatting = False
         
         self.left_hand_up = False
@@ -395,18 +395,25 @@ def run_game():
             if now > anomaly_timer:
                 anomaly_name = None
                 player.gravity = player.base_gravity
+                player.speed = 6.2
                 wind_force = 0.0
-                delay = 35 if mode == "CHILL" else (10 if mode == "CHAOS" else 20)
-                next_anomaly = now + delay + random.random() * 8
+                delay = 25 if mode == "CHILL" else (7 if mode == "CHAOS" else 15)
+                next_anomaly = now + delay + random.random() * 6
         elif now > next_anomaly:
-            # Trigger unexpected quantum event
-            choices = ["ANTI-GRAVITY FLUX", "ION CROSSWIND", "TEMPORAL FLUX"]
+            # Trigger unexpected procedural quantum event
+            choices = ["ANTI-GRAVITY FLUX", "GRAVITY SURGE", "ION CROSSWIND", "WARP SPRINT", "PERCEPTION WARP"]
             anomaly_name = random.choice(choices)
-            anomaly_timer = now + 6
+            anomaly_timer = now + 5.5
             if anomaly_name == "ANTI-GRAVITY FLUX":
-                player.gravity = player.base_gravity * 0.3
+                player.gravity = player.base_gravity * 0.28
+            elif anomaly_name == "GRAVITY SURGE":
+                player.gravity = player.base_gravity * 1.75
             elif anomaly_name == "ION CROSSWIND":
-                wind_force = random.choice([-8.0, 8.0])
+                wind_force = random.choice([-8.5, 8.5])
+            elif anomaly_name == "WARP SPRINT":
+                player.speed = 9.8
+            elif anomaly_name == "PERCEPTION WARP":
+                pass # Handled in move inversion below
 
         # Keyboard Inversion Fallback: A -> Move Right, D -> Move Left
         keys = pygame.key.get_pressed()
@@ -418,6 +425,8 @@ def run_game():
             key_jump = True
 
         final_move = cam_move if cam_move != 0 else key_move
+        if anomaly_name == "PERCEPTION WARP":
+            final_move = -final_move
         final_jump = cam_jump or key_jump
         if cam_shift:
             polarity = "MAGENTA" if polarity == "CYAN" else "CYAN"
